@@ -1,0 +1,333 @@
+!!! NE MODIFIEZ PAS LA STRUCTURE DE CE FICHIER !!!
+
+TP2
+Nom :MARTIN
+Prénom :Esmeralda
+Groupe TP :1E2
+
+IMPORTANT : si vous avez rencontré un problème pendant la séance, décrivez-le entre les lignes de tirets :
+----------------------------------------------------------------
+aucun problème rencontré (quota disque, plantage, perte du travail...) <-- ICI, PAS EN DESSOUS !!
+----------------------------------------------------------------
+
+
+Exercice 2.2 (Conditions)
+----------------------------------------------------------------
+;; programme
+
+        ; V2 == 9 ?
+        LD R0, [V2]
+        CMP R0, 9
+        PRTCOND         ; 1: ne doit pas afficher = car V2 != 9
+
+        ; V2 - 9 == 14 ?
+        LD R0, [V2]
+        SUB R0, 9
+        CMP R0, 14
+        PRTCOND         ; 2: doit afficher = car la condition est vraie
+
+        ; V1 != V2 + 5 ?
+        LD R0, [V2]
+        ADD R0, 5
+        CMP R0, [V1]
+        PRTCOND         ; 3: ne doit pas afficher = car la condition est vraie
+
+        ; V1 - V2 == -18 ?
+        LD R0, [V1]
+        SUB R0, [V2]
+        CMP R0, -18
+        PRTCOND         ; 4: doit afficher = car la condition est vraie
+
+        ; V1 + V2 - 1 < 30 ?
+        LD R0, [V1]
+        ADD R0, [V2]
+        SUB R0, 1
+        CMP R0, 30
+        PRTCOND         ; 5: doit afficher <s car la condition est vraie
+
+        ; V1 + 1 > V2 + 3 ?
+        LD R0, [V1]
+        ADD R0, 1
+        LD R1, [V2]
+        ADD R1, 3
+        CMP R0, R1
+        PRTCOND         ; 6: ne doit pas afficher >s car la condition est fausse
+
+        ; 3*V1 - 1 >= V1 + 9 ?
+        LD R0, [V1]
+        LSL R0
+        ADD R0, [V1]
+        SUB R0, 1
+        LD R1, [V1]
+        ADD R1, 9
+        CMP R0, R1
+        PRTCOND         ; 7: doit afficher = ou >s car la condition est vraie
+
+        ; V2 > V1*4 ?
+        LD R0, [V2]
+        LD R1, [V1]
+        LSL R1
+        LSL R1
+        CMP R0, R1
+        PRTCOND         ; 8: doit afficher >s car la condition est vraie
+
+        ; V1-1 > V2+V1-V2 ?
+        ; non mais ça va pas ? cette condition toujours fausse n'est pas à coder !
+
+
+        ; fin du programme
+        HLT
+
+;; variables du programme toutes signÃ©es !
+V1:     DB 5
+V2:     DB 23
+----------------------------------------------------------------
+
+
+Exercice 5 : dessin brouillé
+----------------------------------------------------------------
+; mettre le DSKY en mode 8 = LCD matriciel
+        LD  R0, 8
+        OUT R0, 255         ; port 255 = choix du mode du DSKY = 8
+        ;; recopier les données sur le port 8
+
+        ; indice = 0
+        LD R1, 0
+repeter:
+        ; lire le code à l'indice R1
+        LD  R0, [R1+donnees]
+
+        ; TODO programmez ces deux conditionnelles
+        ; if (R0 != $AA) {
+        si1:
+            CMP R0, $AA
+            BEQ finsi1
+        alors1:
+            ;   if (R0 != $55) {
+            si2:
+                CMP R0, $55
+                BEQ finsi2
+            alors2:
+            ; afficher le code contenu dans R0 sur le LCD
+                OUT R0, 8
+            ;   }
+            finsi2:; fin du 2e if
+        ; }
+        finsi1:; fin du 1er if
+
+        ; passer au code suivant
+        INC R1              ; R1++
+
+jusqua: CMP R0, 0       ; calcul de la condition (R0 == 0)
+        BNE repeter     ; retour à repeter si condition fausse
+        HLT
+
+donnees:
+        DB %01010101
+        DB %01111111
+        DB %10101010
+        DB %01010101
+        DB %11101110
+        DB %10101010
+        DB %10111100
+        DB %01010101
+        DB %10101010
+        DB %11011100
+        DB %10101010
+        DB %01010101
+        DB %10111100
+        DB %11101110
+        DB %10101010
+        DB %01010101
+        DB %01111111
+        DB 0
+----------------------------------------------------------------
+
+
+Exercice 6 (Division euclidienne)
+----------------------------------------------------------------
+;; division euclidienne d'un entier par un autre
+        ; lire un nombre sur le port 10 et le mettre dans N1
+        IN  R0, 10
+        ST  R0, [N1]
+        ; lire un autre nombre sur le port 10 et le mettre dans N2
+        IN  R0, 10
+        ST  R0, [N2]
+
+        ; partie à programmer
+        ; if (N2 > 0) {
+        ;     Q = 0
+        ;     while (N1 >= N2) {
+        ;         N1 = N1 - N2
+        ;         Q  = Q + 1
+        ;     }
+        ; } else {
+        ;     Q = 255
+        ;     N1 = 255
+        ; }
+
+        si1:
+            LD R0, [N2]
+            CMP R0, 0
+            BLS sinon1
+        alors1:
+            LD R0, 0
+            ST R0, [Q]
+            tantque:
+                LD R0, [N1]
+                LD R1, [N2]
+                CMP R0, R1
+                BLO fintantque
+            faire1:
+                LD R0, [N1]
+                SUB R0, [N2]
+                ST R0, [N1]
+                LD R1, [Q]
+                ADD R1, 1
+                ST R1, [Q]
+                BRA tantque
+            fintantque:
+            BRA finsi1
+        sinon1:
+            LD R0, 255
+            ST R0, [Q]
+            ST R0, [N1]
+        finsi1:
+
+        ; afficher Q puis N1 sur le port 10
+        LD  R0, [Q]
+        OUT R0, 10
+        LD  R0, [N1]
+        OUT R0, 10
+        ; fin du programme
+        HLT
+
+;; variables du programme
+N1:     RB 1    ; RB = reserve bytes = réservation de 1 octet non initialisé
+N2:     RB 1
+Q:      RB 1
+---------------------------------------------------------------
+
+
+Exercice 7 (marche aléatoire)
+----------------------------------------------------------------
+;; marche aléatoire d'un pois sauteur
+        ; position = 0
+        ; mouvements = 0
+
+        ; while (mouvements < 50) {     // non signée
+
+        ;     lire un nombre aléatoire dans R0
+        IN  R0, 254
+
+        ;     if (R0 < 64) {            // non signée
+        ;         position += 2
+        ;     } else if (R0 < 128) {    // non signée
+        ;         position -= 1
+        ;     } else if (R0 < 171) {    // non signée
+        ;         position -= 3
+        ;     } else {
+        ;         position += 1
+        ;     }
+        ;     incrémenter mouvements
+        ; }  // fin du while
+
+        tantque:
+            LD R1, [mouvements]
+            CMP R1, 50
+            BHS fintantque
+        faire:
+                    IN  R0, 254
+
+		    si1:
+		        CMP R0, 64
+		        BHS si2 ; saut si faux
+		    alors1: 
+		        LD R1, [position]
+		        ADD R1, 2
+		        ST R1, [position]
+		        BRA finsi ; sauter toujours
+		    si2: 
+		        CMP R0, 128
+		        BHS si3 ; saut si faux
+		    alors2:
+		        LD R1, [position]
+		        SUB R1, 1
+		        ST R1, [position]
+		        BRA finsi ; sauter toujours
+		    si3:
+		        CMP R0, 171
+		        BHS sinon
+		    alors3:
+		        LD R1, [position]
+		        SUB R1, 3
+		        ST R1, [position]
+		        BRA finsi ; sauter toujours
+		    sinon:
+		        LD R1, [position]
+		        ADD R1, 1
+		        ST R1, [position]
+		    finsi:
+        LD R1, [mouvements]
+        ADD R1, 1
+        ST R1, [mouvements]
+        BRA tantque
+        fintantque:
+
+        ; afficher position sur le port 10
+        LD  R0, [position]
+        OUT R0, 10
+        ; fin du programme
+        HLT
+
+;; variables du programme
+position:       DB  0
+mouvements:     DB  0
+----------------------------------------------------------------
+
+
+Exercice 8 (méthode de Héron)
+----------------------------------------------------------------
+;; calcul de la racine carrée d'un entier par la méthode de Héron
+        ; lire un nombre sur le port 10 et le mettre dans N
+        ; NB: ce nombre est nécessairement non signé : 0..255
+        IN  R0, 10
+        ST  R0, [N]
+        LSR R0          ; n = N/2 pour le point de départ
+        ST  R0, [n]
+
+        ; partie à programmer
+        ; i=8
+        LD R0, 8
+        ST R0, [i]
+        ; répéter {
+
+        repeter:
+        ;     calculer n = (n + N/n) / 2
+        LD  R0, [N]     ; R0 = N
+        DIV R0, [n]     ; R0 = N/n
+        ADD R0, [n]     ; R0 = (N/n) + n
+        LSR R0          ; R0 = ((N/n) + n) / 2
+        ST  R0, [n]     ; n = ((N/n) + n) / 2
+
+        ;     i = i - 1;
+        LD R0, [i]
+        SUB R0, 1
+        ST R0, [i]
+        ; } jusqu'à (i==0);
+         jusqua:
+            LD R0, [i]
+            CMP R0, 0
+            BNE repeter
+
+        ; afficher n sur le port 10
+        LD  R0, [n]
+        OUT R0, 10
+        ; fin du programme
+        HLT
+
+;; variables du programme
+N:      RB 1    ; réservation de 1 octet non initialisé pour cette variable
+n:      RB 1
+i:      RB 1
+----------------------------------------------------------------
