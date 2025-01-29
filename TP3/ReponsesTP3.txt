@@ -1,0 +1,90 @@
+﻿!!! NE MODIFIEZ PAS LA STRUCTURE DE CE FICHIER !!!
+
+TP3
+Nom : MARTIN
+Prénom : Esmeralda
+Groupe TP : 1E2
+
+IMPORTANT : si vous avez rencontré un problème pendant la séance, décrivez-le entre les lignes de tirets :
+----------------------------------------------------------------
+aucun problème rencontré (quota disque, plantage, perte du travail...)
+----------------------------------------------------------------
+
+
+Exercice 2.1 (recopie d'un texte en majuscules)
+----------------------------------------------------------------
+;; programme principal
+main:       ; DSKY en mode 11 (lecture et affichage de caractères ascii)
+            LD  R0, 11
+            OUT R0, 255
+            ; TODO repeter {
+.repeter:
+            ; lire un caractère dans R0
+            CALL getchar
+            ; mettre le caractère en majuscules
+            CALL toUpper
+            ; afficher le caractère R0
+            CALL putchar
+
+            ; TODO } jusqu'à (c == '\n')
+.jusqua:
+            CMP R0, '\n'
+            BNE .repeter
+            ; fin du programme
+            HLT
+
+
+;; fonction getchar() lit un caractère sur le terminal ascii
+;; paramètres : aucun
+;; résultat : R0 = code ascii du caractère lu
+getchar:    IN  R0, 11
+            RET
+
+;; affichage de R0 (code ascii) sur le port 11
+;; paramètres : R0 = code ascii du caractère à afficher
+;; résultat : aucun
+putchar:    OUT R0, 11
+            RET
+
+;; mise en majuscules de R0 (code ASCII)
+;; paramètres : R0 = code ascii du caractère à transformer
+;; résultat : R0 = code ascii du caractère transformé
+toUpper:    ; TODO si (R0 >= 'a' et R0 <= 'z') {
+
+.si:        CMP R0, 'a'
+            BLO .finsi
+            CMP R0, 'z'
+            BHI .finsi
+.alors:
+        ; mettre le bit 5 à zéro
+            AND R0, %11011111
+.finsi:
+            ; TODO }
+
+            ; return R0
+            RET
+----------------------------------------------------------------
+
+
+Exercice 2.2 (Fibonacci v1)
+----------------------------------------------------------------
+COLLEZ VOTRE PROGRAMME ENTRE CES DEUX LIGNES <-- ICI, PAS EN DESSOUS !!
+----------------------------------------------------------------
+
+
+Exercice 3.2 (fonction puts)
+----------------------------------------------------------------
+COLLEZ VOTRE PROGRAMME ENTRE CES DEUX LIGNES <-- ICI, PAS EN DESSOUS !!
+----------------------------------------------------------------
+
+
+Exercice 3.3 (chenille)
+----------------------------------------------------------------
+COLLEZ VOTRE PROGRAMME ENTRE CES DEUX LIGNES <-- ICI, PAS EN DESSOUS !!
+----------------------------------------------------------------
+
+
+Exercice 3.4 (Fibonacci v2)
+----------------------------------------------------------------
+COLLEZ VOTRE PROGRAMME ENTRE CES DEUX LIGNES <-- ICI, PAS EN DESSOUS !!
+----------------------------------------------------------------
