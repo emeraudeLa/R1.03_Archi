@@ -1,0 +1,270 @@
+!!! NE MODIFIEZ PAS LA STRUCTURE DE CE FICHIER !!!
+
+TP3
+Nom : MARTIN
+Prénom :Esmeralda
+Groupe TP :1E2
+
+IMPORTANT : si vous avez rencontré un problème pendant la séance, décrivez-le entre les lignes de tirets :
+----------------------------------------------------------------
+aucun problème rencontré (quota disque, plantage, perte du travail...)
+----------------------------------------------------------------
+
+
+Exercice 2.1 (recopie d'un texte en majuscules)
+----------------------------------------------------------------
+;; programme principal
+main:       ; DSKY en mode 11 (lecture et affichage de caractères ascii)
+            LD  R0, 11
+            OUT R0, 255
+            ; TODO repeter {
+repeter:
+            ; lire un caractère dans R0
+            CALL getchar
+            ; mettre le caractère en majuscules
+            CALL toUpper
+            ; afficher le caractère R0
+            CALL putchar
+            ; TODO } jusqu'à (c == '\n')
+jusqua:
+            CMP R0, '\n'
+            BNE repeter
+            ;fin du programme
+            HLT
+                
+;; fonction getchar() lit un caractère sur le terminal ascii
+;; paramètres : aucun
+;; résultat : R0 = code ascii du caractère lu
+getchar:    IN  R0, 11
+            RET
+
+;; affichage de R0 (code ascii) sur le port 11
+;; paramètres : R0 = code ascii du caractère à afficher
+;; résultat : aucun
+putchar:    OUT R0, 11
+            RET
+
+;; mise en majuscules de R0 (code ASCII)
+;; paramètres : R0 = code ascii du caractère à transformer
+;; résultat : R0 = code ascii du caractère transformé
+toUpper:    ; TODO si (R0 >= 'a' et R0 <= 'z') {
+            si:
+                CMP R0, 'a'
+                BLO finsi
+                CMP R0, 'z'
+                BHI finsi
+            alors:
+                ; mettre le bit 5 à zéro
+                AND R0, %11011111
+            finsi:
+                ; return R0
+                RET
+            RET
+----------------------------------------------------------------
+
+
+Exercice 2.2 (Fibonacci v1)
+----------------------------------------------------------------
+;; programme principal
+main:       ; DSKY en mode 10 (lecture et affichage de nombres)
+            LD  R0, 10
+            OUT R0, 255
+            ; lire un entier n dans R0
+            IN  R0, 10
+            ; calculer F(n), résultat dans R0
+            CALL F
+            ; afficher le résultat
+            OUT R0, 10
+            HLT
+
+;; fonction de Fibonacci
+;; paramètres : R0 = n
+;; résultat : R0 = F(n)
+F:          ; TODO si (R0 == 0 ou R0 == 1) {
+            si:
+                CMP R0, 0
+                BEQ finsi
+                CMP R0, 1
+                BEQ finsi
+            ; TODO } sinon {
+            ; TODO     calculer F(R0-1) + F(R0-2) dans R0
+            alors:
+                PUSH R1
+                SUB R0, 1
+                PUSH R0
+                CALL F
+                LD R1, R0
+                POP R0
+                SUB R0, 1
+                CALL F
+                ADD R0, R1
+                POP R1
+                BRA finsi
+            ; TODO }
+            ; TODO     ne rien faire car R0 = résultat
+            finsi:; retour de la fonction, R0 contient le résultat
+                RET
+----------------------------------------------------------------
+
+
+Exercice 3.2 (fonction puts)
+----------------------------------------------------------------
+;; programme principal
+main:       ; DSKY en mode 11 (affichage de caractères ascii)
+            LD  R0, 11
+            OUT R0, 255
+            ; écrire le message sur le port 11
+            LD  R0, message
+            CALL puts
+            ; fin du programme
+            HLT
+
+message:    DB  "Salut, tout va bien ?", 0
+
+;; fonction puts(R0)
+;; affiche la chaîne située en R0 sur le port 11
+;; paramètres : R0 = adresse de la chaîne terminée par un 0
+;; résultat : aucun
+puts:       ; TODO sauver les registres utilisés
+            PUSH R0
+            PUSH R1
+            ; TODO recopier tout ce qu'il faut du programme précédent
+            LD R0, message 
+            LD R1, [R0]
+
+.tantque:
+            CMP R1, 0
+            BEQ .fintantque
+.faire:
+            OUT R1, 11
+            INC R0
+            LD R1, [R0]
+            BRA .tantque
+.fintantque:
+            ; TODO restaurer les registres
+            POP R0
+            POP R1
+            
+            RET
+----------------------------------------------------------------
+
+
+Exercice 3.3 (chenille)
+----------------------------------------------------------------
+;; programme principal
+main:       ; mettre le DSKY en mode 8 = LCD matriciel
+            LD  R0, 8
+            OUT R0, 255
+            ; dessiner la queue
+            LD  R0, data_queue
+            CALL dessiner
+
+            ; TODO dessiner 5 segments pour le corps
+            LD R0, data_corps
+            CALL dessiner
+            CALL dessiner
+            CALL dessiner
+            CALL dessiner
+            CALL dessiner
+
+            ; dessiner la tete
+            LD  R0, data_tete
+            CALL dessiner
+            ; fin du programme
+            HLT
+
+data_tete:  DB  %01111100
+            DB  %01000010
+            DB  %01001010
+            DB  %00111101
+
+data_corps: DB  %01000100
+            DB  %11110100
+            DB  %01000100
+            DB  %00111000
+
+data_queue: DB  %00000000
+            DB  %00000000
+            DB  %00110000
+            DB  %01001000
+
+;; recopie 4 octets à partir de R0 sur le port 8
+;; paramètres : R0 = adresse de 4 octets à la suite
+;; résultat : aucun
+dessiner:
+            ; TODO votre fonction doit envoyer les 4 octets situés à
+            ; l'adresse R0 sur le port 8, mais sans modifier R0 au retour
+            PUSH R1
+            LD R1, [R0] 
+            OUT R1, 8
+            LD R1, [R0+1] 
+            OUT R1, 8
+            LD R1, [R0+2] 
+            OUT R1, 8
+            LD R1, [R0+3] 
+            OUT R1, 8
+            POP R1
+        
+            RET
+----------------------------------------------------------------
+
+
+Exercice 3.4 (Fibonacci v2)
+----------------------------------------------------------------
+;; programme principal
+main:       ; DSKY en mode 10 (lecture et affichage de nombres)
+            LD  R0, 10
+            OUT R0, 255
+            ; lire un entier n dans R0
+            IN  R0, 10
+            ; calculer F(n), résultat dans R0
+            CALL F
+            ; afficher le résultat
+            OUT R0, 10
+            HLT
+F_mem:
+            DB 0, 1
+            RB 12, 255
+
+;; fonction de Fibonacci
+;; paramètres : R0 = n
+;; résultat : R0 = F(n)
+F: 
+            PUSH R1
+            LD R1, [R0+F_mem]
+
+            ; si (R1 == 255)
+            si: 
+                CMP R1, 255
+                BNE finsi
+            alors:
+                ; sauve n sur la pile
+                PUSH R0
+                ; R0 = n − 1
+                SUB R0, 1
+                ; sauve n − 1 sur la pile
+                PUSH R0
+                ; au retour, R0 = F (n − 1)
+                CALL F
+                ; R1 = F (n − 1)
+                LD R1, R0
+                ; récupérer n − 1 dans R0
+                POP R0
+                ; R0 = n − 2
+                SUB R0, 1
+                ; au retour, R0 = F (n − 2)
+                CALL F
+                ; R1 = F (n − 1) + F (n − 2)
+                ADD R1, R0
+                ; récupèrer n dans R0, F (n) est dans R1
+                POP R0
+                ST R1, [R0+F_mem]
+                BRA finsi
+
+            finsi:
+                ; R0 = F (n)
+                LD R0, R1
+                ;dépiler R1
+                POP R1 
+                RET
+----------------------------------------------------------------
